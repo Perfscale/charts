@@ -1,0 +1,75 @@
+image:
+  repository: ghcr.io/perfscale-org/perfscaled
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+# The agent needs access to host proc/sys for metrics collection.
+securityContext:
+  privileged: false
+  readOnlyRootFilesystem: true
+
+# Host path mounts for metrics collection
+hostPID: false
+hostNetwork: false
+
+volumes:
+  - name: proc
+    hostPath:
+      path: /proc
+  - name: sys
+    hostPath:
+      path: /sys
+  # Library artifact cache (RFC 005): artifacts installed via
+  # `POST /api/v1/libraries/install` or `perfscaled library install` live
+  # here (PERFSCALE_CACHE_DIR is pointed at the mount in the daemonset).
+  # emptyDir survives container restarts; switch to a hostPath if installs
+  # must also survive pod rescheduling.
+  - name: library-cache
+    emptyDir: {}
+
+volumeMounts:
+  - name: proc
+    mountPath: /host/proc
+    readOnly: true
+  - name: sys
+    mountPath: /host/sys
+    readOnly: true
+  # Writable cache location — the root filesystem is read-only.
+  - name: library-cache
+    mountPath: /var/lib/perfscale/cache
+
+resources: {}
+
+nodeSelector: {}
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+affinity: {}
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+
+env:
+  CONTROLPLANE_URL: ""
+  CONTROLPLANE_TOKEN: ""
+  # Interval between metric pushes (e.g. "30s", "1m")
+  COLLECT_INTERVAL: "30s"
+
+# Use existing Secret instead of creating one from env values above.
+existingSecret: ""

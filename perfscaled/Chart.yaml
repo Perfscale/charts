@@ -1,0 +1,16 @@
+apiVersion: v2
+name: perfscaled
+description: PerfScale machine agent — collects host metrics and streams them to the controlplane
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - perfscale
+  - agent
+  - metrics
+home: https://perfscale.su
+sources:
+  - https://github.com/perfscale-org/perfscaled
+maintainers:
+  - name: PerfScale
+    url: https://github.com/perfscale
