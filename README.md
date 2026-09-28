@@ -13,7 +13,7 @@ Helm charts for running [PerfScale](https://github.com/Perfscale/perfscale) load
 ### Add the Helm repository
 
 ```bash
-$ helm repo add perfscale https://charts.perfscale.su/
+$ helm repo add perfscale https://raw.githubusercontent.com/Perfscale/charts/main/
 $ helm repo update
 ```
 
@@ -61,6 +61,7 @@ $ helm template my-release perfscale/
 ## Releases
 
 Charts are released automatically via GitHub Actions when a chart version is bumped.
-Packaged charts are published from this repo's `docs/` index.
+chart-releaser publishes each chart as a GitHub Release asset and maintains the
+repo index at [`index.yaml`](./index.yaml) on `main`.
 
 See [RELEASES](https://github.com/Perfscale/charts/releases) for the full changelog.

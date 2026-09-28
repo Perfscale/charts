@@ -35,7 +35,8 @@ jobs:
         uses: helm/chart-releaser-action@v1.6.0
         with:
           charts_dir: .
+          # Index lives at the repo root on main: raw.githubusercontent.com
+          # serves it as the Helm repo index (no GitHub Pages needed).
           pages_branch: main
-          pages_index_path: docs/index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
