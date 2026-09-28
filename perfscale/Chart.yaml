@@ -1,0 +1,18 @@
+apiVersion: v2
+name: perfscale
+description: PerfScale load-testing CLI as a Kubernetes Job or CronJob — run a scenario once or on a schedule
+type: application
+version: 0.1.0
+appVersion: "0.23.0"
+keywords:
+  - perfscale
+  - load-testing
+  - k6
+  - jmeter
+  - locust
+home: https://perfscale.su
+sources:
+  - https://github.com/Perfscale/perfscale
+maintainers:
+  - name: PerfScale
+    url: https://github.com/Perfscale

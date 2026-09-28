@@ -1,12 +1,12 @@
 # PerfScale Helm Charts
 
-This repository contains Helm charts for deploying PerfScale services on Kubernetes.
+Helm charts for running [PerfScale](https://github.com/Perfscale/perfscale) load tests on Kubernetes.
 
 ## Charts
 
 | Chart | Description |
 |-------|-------------|
-| [perfscaled](./perfscaled/) | Rust machine agent |
+| [perfscale](./perfscale/) | The OSS load-testing CLI as a one-shot Job or a scheduled CronJob |
 
 ## Usage
 
@@ -26,47 +26,41 @@ $ helm search repo perfscale
 ### Install a chart
 
 ```bash
-$ helm upgrade --install <release-name> perfscale/<chart-name>
+# One-shot smoke run (self-contained SQLite scenario — no network needed)
+$ helm install smoke perfscale/perfscale
+
+# Nightly load test from your own scenario
+$ helm install nightly perfscale/perfscale \
+    --set schedule="0 3 * * *" \
+    --set-file scenario.test=my.test.yaml \
+    --set-file scenario.config=my.config.yaml
 ```
 
-### Install with custom values
-
-```bash
-$ helm upgrade --install <release-name> perfscale/<chart-name> \
-    --namespace <namespace> \
-    --create-namespace \
-    -f my-values.yaml
-```
+See the chart's [values.yaml](./perfscale/values.yaml) for the full surface
+(engine flavors, library cache PVC, resource limits, extra CLI args).
 
 ## Development
 
 ### Prerequisites
 
 - [Helm](https://helm.sh/docs/intro/install/) v3.x
-- [helm-unittest](https://github.com/helm-unittest/helm-unittest) (optional, for unit tests)
 - [ct (chart-testing)](https://github.com/helm/chart-testing) (optional, for linting)
 
 ### Lint a chart
 
 ```bash
-$ helm lint controlplane/
+$ helm lint perfscale/
 ```
 
 ### Render templates locally
 
 ```bash
-$ helm template my-release controlplane/ -f controlplane/values.yaml
-```
-
-### Run unit tests
-
-```bash
-$ helm unittest controlplane/
+$ helm template my-release perfscale/
 ```
 
 ## Releases
 
 Charts are released automatically via GitHub Actions when a chart version is bumped.
-Packaged charts are published to GitHub Pages at `https://charts.perfscale.io/`.
+Packaged charts are published from this repo's `docs/` index.
 
-See [RELEASES](https://github.com/perfscale-org/charts/releases) for the full changelog.
+See [RELEASES](https://github.com/Perfscale/charts/releases) for the full changelog.

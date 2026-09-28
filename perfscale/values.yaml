@@ -1,0 +1,96 @@
+# PerfScale CLI as a Job (one-shot) or CronJob (scheduled load tests).
+#
+# The default scenario is a self-contained SQLite smoke test — no network,
+# no external services — so `helm install` works out of the box. Replace
+# `scenario.test`/`scenario.config` with your own, or mount an existing
+# ConfigMap via `scenario.existingConfigMap`.
+
+image:
+  repository: ghcr.io/perfscale/perfscale
+  # Defaults to the chart's appVersion. Engine flavors append a suffix:
+  # "", "k6", "jmeter", "locust", "full" (see docker.md in the perfscale repo).
+  tag: ""
+  flavor: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Scheduling: empty = a one-shot Job; a cron expression = a CronJob
+# (the classic "run this load test every night" setup).
+schedule: ""
+
+# CronJob-only knobs (ignored for one-shot Jobs).
+suspend: false
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 2
+startingDeadlineSeconds: 300
+
+# Job knobs.
+backoffLimit: 2
+# Clean up finished Jobs after a day; set null to keep them forever.
+ttlSecondsAfterFinished: 86400
+# Hard cap on run time; null = none.
+activeDeadlineSeconds: null
+
+scenario:
+  # Inline scenario, rendered into a ConfigMap by the chart.
+  test: |
+    # Self-contained smoke: SQLite in memory, no network needed.
+    steps:
+      - name: open db
+        use: std/db-connect@v1
+        with:
+          driver: sqlite
+          dsn: "sqlite::memory:"
+        outputs: db
+
+      - name: query
+        use: std/db-query@v1
+        with:
+          id: "${{ db.id }}"
+          query: SELECT 1 AS ok
+        check:
+          duration_ms_lt: 500
+
+      - name: hang up
+        use: std/db-close@v1
+        with: { id: "${{ db.id }}" }
+
+  config: |
+    vus: 1
+    duration: 5s
+
+  # Bring your own: name of a ConfigMap with the keys below.
+  existingConfigMap: ""
+  testKey: test.yaml
+  configKey: config.yaml
+
+# Extra CLI args appended after `run -f <test> -c <config>`.
+extraArgs: []
+
+# Extra environment variables (secrets belong in valueFrom.secretKeyRef).
+env: []
+
+# Shared library cache (RFC 005): pre-populate with `perfscale install`
+# (e.g. from an init Job), runs only read from it. With the cache disabled,
+# libraries must ride the scenario volume or be burned into a standalone
+# binary — see the Libraries guide in the perfscale docs.
+cache:
+  enabled: false
+  # Use an existing PVC instead of having the chart create one. Point several
+  # releases at the same claim to share one cache between scenarios.
+  existingClaim: ""
+  size: 1Gi
+  storageClassName: ""
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podSecurityContext: {}
+securityContext: {}

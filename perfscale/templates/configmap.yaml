@@ -1,0 +1,15 @@
+{{- if not .Values.scenario.existingConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "perfscale.scenarioConfigMap" . }}
+  labels:
+    {{- include "perfscale.labels" . | nindent 4 }}
+data:
+  {{ .Values.scenario.testKey }}: |
+    {{- .Values.scenario.test | nindent 4 }}
+  {{- if .Values.scenario.config }}
+  {{ .Values.scenario.configKey }}: |
+    {{- .Values.scenario.config | nindent 4 }}
+  {{- end }}
+{{- end }}

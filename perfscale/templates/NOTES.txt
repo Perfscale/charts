@@ -1,0 +1,11 @@
+{{- if .Values.schedule }}
+CronJob {{ include "perfscale.fullname" . }} installed — schedule: {{ .Values.schedule | quote }}
+
+  Watch the runs:      kubectl get jobs -l app.kubernetes.io/instance={{ .Release.Name }}
+  Trigger one now:     kubectl create job --from=cronjob/{{ include "perfscale.fullname" . }} {{ include "perfscale.fullname" . }}-manual
+{{- else }}
+Job {{ include "perfscale.fullname" . }} created.
+
+  Follow the run:      kubectl logs -f job/{{ include "perfscale.fullname" . }}
+  Re-run:              helm uninstall {{ .Release.Name }} && helm install {{ .Release.Name }} {{ .Chart.Name }} --repo <this repo>
+{{- end }}

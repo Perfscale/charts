@@ -1,8 +1,0 @@
-The perfscaled agent has been deployed as a DaemonSet — one pod per node.
-
-Check the agent status:
-  kubectl --namespace {{ .Release.Namespace }} get daemonset {{ include "perfscaled.fullname" . }}
-  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "perfscaled.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
-
-View logs from one agent:
-  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "perfscaled.name" . }}" --tail=50

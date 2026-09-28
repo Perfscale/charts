@@ -1,0 +1,27 @@
+{{- if .Values.schedule }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "perfscale.fullname" . }}
+  labels:
+    {{- include "perfscale.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  suspend: {{ .Values.suspend }}
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .Values.startingDeadlineSeconds }}
+  jobTemplate:
+    spec:
+      {{- include "perfscale.jobSpec" . | nindent 6 }}
+{{- else }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "perfscale.fullname" . }}
+  labels:
+    {{- include "perfscale.labels" . | nindent 4 }}
+spec:
+  {{- include "perfscale.jobSpec" . | nindent 2 }}
+{{- end }}

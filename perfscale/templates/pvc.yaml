@@ -1,0 +1,16 @@
+{{- if and .Values.cache.enabled (not .Values.cache.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "perfscale.fullname" . }}-library-cache
+  labels:
+    {{- include "perfscale.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ .Values.cache.size }}
+  {{- with .Values.cache.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}
